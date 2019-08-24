@@ -1,6 +1,6 @@
 {
 	"name": "@iosio/util",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "js utilities",
 	"main": "lib/index.js",
 	"module": "lib/index.esm.js",
