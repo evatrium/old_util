@@ -14,4 +14,3 @@ npm install @iosio/util --save
 
 [MIT]: https://choosealicense.com/licenses/mit/
 
-This project was generated with @iosio/create-project
