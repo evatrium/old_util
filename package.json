@@ -9,7 +9,9 @@
 		"access": "public"
 	},
 	"license": "MIT",
-	"files": [],
+	"files": [
+		"/lib"
+	],
 	"keywords": [],
 	"scripts": {
 		"build": "rimraf lib && rollup -c rollup.config.lib.js",
