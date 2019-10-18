@@ -8,7 +8,7 @@
 		"access": "public"
 	},
 	"license": "MIT",
-	"files": [],
+	"files": ["index.js"],
 	"keywords": [],
 	"PROJECTS": {
 		"demo": {
