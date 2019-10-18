@@ -1,1 +1,0 @@
-export const def = (obj, prop, handlers) => Object.defineProperty(obj, prop, handlers);
