@@ -1,6 +1,6 @@
 {
 	"name": "@iosio/util",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"description": "collection of js utils",
 	"main": "index.js",
 	"module": "index.js",
@@ -8,7 +8,9 @@
 		"access": "public"
 	},
 	"license": "MIT",
-	"files": ["index.js"],
+	"files": [
+		"index.js"
+	],
 	"keywords": [],
 	"PROJECTS": {
 		"demo": {
