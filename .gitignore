@@ -1,9 +1,9 @@
-
 ## npm
 /node_modules/
 **/node_modules/**
 /npm-debug.log
 node_modules/
+node_modules
 
 # production
 /build
@@ -30,13 +30,3 @@ yarn-error.log*
 
 # testing
 /coverage
-
-demoBuild
-/demoBuild
-/index.*
-/routing.*
-/obi.*
-/utils.*
-/common.*
-/xact.*
-/scrap.txt
