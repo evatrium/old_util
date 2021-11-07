@@ -10,8 +10,6 @@ npm install @iosio/util --save
 ```
 ### License
 
-[MIT]
-
 [MIT]: https://choosealicense.com/licenses/mit/
 
 

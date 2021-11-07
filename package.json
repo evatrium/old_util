@@ -2,22 +2,41 @@
 	"name": "@iosio/util",
 	"version": "1.0.0",
 	"description": "collection of js utils",
-	"main": "lib/index.js",
+	"type": "module",
 	"source": "src/index.js",
+	"exports": {
+		"require": "./lib/iosio-utils.cjs",
+		"default": "./lib/iosio-utils.modern.js"
+	},
+	"main": "./lib/iosio-utils.cjs",
+	"module": "./lib/iosio-utils.module.js",
+	"unpkg": "./lib/iosio-utils.umd.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/iosio/util.git"
+	},
+	"license": "MIT",
 	"publishConfig": {
 		"access": "public"
 	},
-	"license": "MIT",
 	"files": [
 		"src",
 		"lib"
 	],
-	"keywords": [],
+	"keywords": [
+		"utils",
+		"utilities",
+		"helper functions",
+		"standard lib"
+	],
 	"scripts": {
-		"build": "microbundle -i src/index.js -o lib/index.js --compress --f modern --no-pkg-main",
+		"build": "microbundle",
 		"test": "exit 0"
 	},
+	"dependencies": {
+		"lodash-es": "^4.17.21"
+	},
 	"devDependencies": {
-		"microbundle": "^0.12.3"
+		"microbundle": "^0.14.1"
 	}
 }
