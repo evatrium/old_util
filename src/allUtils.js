@@ -827,6 +827,7 @@ export const snakeToSentenceCase = text => startCase(text);
 export const reduceWhiteSpaceToMax1Space = string =>
   string.trim().split('\n').join(' ').split('\r').join(' ').split('\t').join(' ').replace(/ +/g, ' ');
 
+export const capitalize = string => string.charAt(0).toUpperCase() + string.slice(1);
 
 /*################################
 ##################################
