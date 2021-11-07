@@ -1,13 +1,13 @@
-import isPlainObject from 'lodash-es/isPlainObject';
-import isString from 'lodash-es/isString'
-import isEmpty from 'lodash-es/isEmpty'
-import isFunction from 'lodash-es/isFunction'
-import isNumber from 'lodash-es/isNumber'
-import isBoolean from 'lodash-es/isBoolean'
-import toPath from 'lodash-es/toPath'
-import clone from 'lodash-es/clone'
-import isObject from 'lodash-es/isObject'
-import startCase from 'lodash-es/startCase'
+import {default as isPlainObject} from 'lodash-es/isPlainObject';
+import {default as isString} from 'lodash-es/isString'
+import {default as isEmpty} from 'lodash-es/isEmpty'
+import {default as isFunction} from 'lodash-es/isFunction'
+import {default as isNumber} from 'lodash-es/isNumber'
+import {default as isBoolean} from 'lodash-es/isBoolean'
+import {default as toPath} from 'lodash-es/toPath'
+import {default as clone} from 'lodash-es/clone'
+import {default as isObject} from 'lodash-es/isObject'
+import {default as startCase} from 'lodash-es/startCase'
 
 /*
     I may be continuing to alias my old stuff with lodash-es where applicable
@@ -29,7 +29,6 @@ export const isNum = isNumber;
 export const isBool = isBoolean;
 export const isObjOrArr = (thing) => (isPlainObject(thing) || isArray(thing));
 export const isInteger = (obj) => String(Math.floor(Number(obj))) === obj;
-
 
 
 /*################################
