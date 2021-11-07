@@ -30,11 +30,13 @@
 		"standard lib"
 	],
 	"scripts": {
+		"start": "wmr",
 		"build": "microbundle",
 		"test": "exit 0"
 	},
 	"devDependencies": {
-		"microbundle": "^0.14.1"
+		"microbundle": "^0.14.1",
+		"wmr": "^3.7.2"
 	},
 	"dependencies": {
 		"lodash": "^4.17.21"

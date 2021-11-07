@@ -32,5 +32,4 @@ yarn-error.log*
 # testing
 /coverage
 
-quickie.js
-quickie
+.cache

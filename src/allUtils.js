@@ -241,22 +241,12 @@ export const url = (strings, ...interpolations) =>
     strings.reduce((out, string, i) => {
         let value = interpolations[i];
         if (isPlainObject(value)) {
-            if (!isEmpty(value)) {
-                let addQuestionMark = true;
-                if ((i - 1) < 0) {
-                    addQuestionMark = false;
-                } else if (isString(interpolations[i - 1]) && interpolations[i - 1].endsWith('?')) {
-                    addQuestionMark = false;
-                }
-
-                value = `${addQuestionMark ? '?' : ''}${stringifyParams(value)}`
-            } else {
-                value = '';
-            }
+            value = isEmpty(value)
+                ? ''
+                : `${string.endsWith('?') ? '' : '?'}${stringifyParams(value)}`
         }
         if (value === undefined) value = '';
-
-        out += value;
+        out += `${string}${value}`;
         return out;
     }, '');
 
