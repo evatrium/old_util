@@ -30,13 +30,13 @@
 		"standard lib"
 	],
 	"scripts": {
-		"build": "microbundle --external lodash-es",
+		"build": "microbundle",
 		"test": "exit 0"
-	},
-	"peerDependencies": {
-		"lodash-es": "^4.17.21"
 	},
 	"devDependencies": {
 		"microbundle": "^0.14.1"
+	},
+	"dependencies": {
+		"lodash": "^4.17.21"
 	}
 }

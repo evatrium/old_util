@@ -1,16 +1,17 @@
-import {default as isPlainObject} from 'lodash-es/isPlainObject';
-import {default as isString} from 'lodash-es/isString'
-import {default as isEmpty} from 'lodash-es/isEmpty'
-import {default as isFunction} from 'lodash-es/isFunction'
-import {default as isNumber} from 'lodash-es/isNumber'
-import {default as isBoolean} from 'lodash-es/isBoolean'
-import {default as toPath} from 'lodash-es/toPath'
-import {default as clone} from 'lodash-es/clone'
-import {default as isObject} from 'lodash-es/isObject'
-import {default as startCase} from 'lodash-es/startCase'
+import isPlainObject from 'lodash/isPlainObject';
+import isString from 'lodash/isString'
+import isEmpty from 'lodash/isEmpty'
+import isFunction from 'lodash/isFunction'
+import isNumber from 'lodash/isNumber'
+import isBoolean from 'lodash/isBoolean'
+import toPath from 'lodash/toPath'
+import clone from 'lodash/clone'
+import isObject from 'lodash/isObject'
+import startCase from 'lodash/startCase'
 
 /*
-    I may be continuing to alias my old stuff with lodash-es where applicable
+    I may be continuing to alias my old stuff with lodash-es where applicable.
+    ... correction... "lodash" not "lodash-es" cuz its not playing well with the bundlers
  */
 
 /*################################
