@@ -1,7 +1,13 @@
-import {
-    isPlainObject, isString, isEmpty, isFunction, isNumber, isBoolean,
-    toPath, clone, isObject, startCase
-} from 'lodash-es';
+import isPlainObject from 'lodash-es/isPlainObject';
+import isString from 'lodash-es/isString'
+import isEmpty from 'lodash-es/isEmpty'
+import isFunction from 'lodash-es/isFunction'
+import isNumber from 'lodash-es/isNumber'
+import isBoolean from 'lodash-es/isBoolean'
+import toPath from 'lodash-es/toPath'
+import clone from 'lodash-es/clone'
+import isObject from 'lodash-es/isObject'
+import startCase from 'lodash-es/startCase'
 
 /*
     I may be continuing to alias my old stuff with lodash-es where applicable
