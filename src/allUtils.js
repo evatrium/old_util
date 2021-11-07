@@ -1,5 +1,5 @@
 import {
-    isPlainObject, isString, isEmpty, isFunction, isNumber, isBoolean, isDate,
+    isPlainObject, isString, isEmpty, isFunction, isNumber, isBoolean,
     toPath, clone, isObject, startCase
 } from 'lodash-es';
 
@@ -23,15 +23,7 @@ export const isNum = isNumber;
 export const isBool = isBoolean;
 export const isObjOrArr = (thing) => (isPlainObject(thing) || isArray(thing));
 export const isInteger = (obj) => String(Math.floor(Number(obj))) === obj;
-export {
-    isPlainObject,
-    isString,
-    isEmpty,
-    isFunction,
-    isNumber,
-    isBoolean,
-    isDate
-};
+
 
 
 /*################################
