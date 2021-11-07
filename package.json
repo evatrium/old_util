@@ -30,11 +30,10 @@
 		"standard lib"
 	],
 	"scripts": {
-		"build": "microbundle",
-		"test": "exit 0",
-		"quickie": "node quickie.js"
+		"build": "microbundle --external lodash-es",
+		"test": "exit 0"
 	},
-	"dependencies": {
+	"peerDependencies": {
 		"lodash-es": "^4.17.21"
 	},
 	"devDependencies": {
