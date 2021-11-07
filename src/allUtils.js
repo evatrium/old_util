@@ -45,13 +45,50 @@ PARSING
 export const jsonParse = str => {
   let result;
   try {
-    result = { ok: true, data: JSON.parse(str) };
-  } catch (e) {
-    result = { ok: false };
+    result = { data: JSON.parse(str) };
+  } catch (error) {
+    result = { error };
   }
   return result;
 };
 
+/*################################
+##################################
+
+MISC
+
+##################################
+################################*/
+
+export const stringify = (data) => {
+  let out = '';
+  for (let key in data) {
+    let val = data[key];
+    out += key + (typeof val == 'object' ? stringify(data[key]) : data[key]);
+  }
+  return out;
+};
+
+export const memoize = (fn) => {
+  let cache = {};
+  return (arg) => {
+    if (cache[arg]) return cache[arg];
+    let result = fn(arg);
+    cache[arg] = result;
+    return result;
+  };
+};
+
+export const memoizeArgs = fn => {
+  let cache = {};
+  return (...args) => {
+    const arg = stringify(args);
+    if (cache[arg]) return cache[arg];
+    let result = fn(arg);
+    cache[arg] = result;
+    return result;
+  };
+};
 
 /*################################
 ##################################
@@ -139,8 +176,8 @@ export const localStore = {
   getItem: key => {
     let item = ls.getItem(key);
     if (!item || item === 'undefined') return null;
-    const { ok, data } = jsonParse(item);
-    return ok ? data : null;
+    const { data } = jsonParse(item);
+    return data || null;
   }
 };
 
@@ -198,7 +235,7 @@ export const stringifyParams = (obj, noQuestionMark) => {
       }
     }
   }
-  return (noQuestionMark ? '' : '?') + str;
+  return str;
 };
 
 
@@ -862,44 +899,5 @@ export const uuid = () => s4() + s4() + '-' + s4() + '-' + s4() + '-' +
 export const uniqueId = () => uuid() + '-' + Date.now();
 
 export const toHash = str =>
-  'css' +
-  str.split('').reduce((out, i) => (10 * out + i.charCodeAt(0)) >>> 0, 0);
+  'css' + str.split('').reduce((out, i) => (10 * out + i.charCodeAt(0)) >>> 0, 0);
 
-
-/*################################
-##################################
-
-MISC
-
-##################################
-################################*/
-
-export const stringify = (data) => {
-  let out = '';
-  for (let key in data) {
-    let val = data[key];
-    out += key + (typeof val == 'object' ? stringify(data[key]) : data[key]);
-  }
-  return out;
-};
-
-export const memoize = (fn) => {
-  let cache = {};
-  return (arg) => {
-    if (cache[arg]) return cache[arg];
-    let result = fn(arg);
-    cache[arg] = result;
-    return result;
-  };
-};
-
-export const memoizeArgs = fn => {
-  let cache = {};
-  return (...args) => {
-    const arg = stringify(args);
-    if (cache[arg]) return cache[arg];
-    let result = fn(arg);
-    cache[arg] = result;
-    return result;
-  };
-};
