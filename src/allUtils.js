@@ -1,13 +1,5 @@
-import isPlainObject from 'lodash/isPlainObject';
-import isString from 'lodash/isString'
-import isEmpty from 'lodash/isEmpty'
-import isFunction from 'lodash/isFunction'
-import isNumber from 'lodash/isNumber'
-import isBoolean from 'lodash/isBoolean'
 import toPath from 'lodash/toPath'
 import clone from 'lodash/clone'
-import isObject from 'lodash/isObject'
-import startCase from 'lodash/startCase'
 
 /*
     I may be continuing to alias my old stuff with lodash-es where applicable.
@@ -17,25 +9,131 @@ import startCase from 'lodash/startCase'
 /*################################
 ##################################
 
-TYPEOF
+            TYPEOF
 
 ##################################
 ################################*/
 
 
 export const isArray = Array.isArray;
-export const isObj = isPlainObject;
-export const isFunc = isFunction;
-export const isNum = isNumber;
-export const isBool = isBoolean;
-export const isObjOrArr = (thing) => (isPlainObject(thing) || isArray(thing));
-export const isInteger = (obj) => String(Math.floor(Number(obj))) === obj;
+export const isString = thing => typeof thing === 'string';
+export const isObj = thing => thing !== null && typeof thing === 'object';
+export const isPlainObject = thing => thing !== null && typeof thing === 'object' && thing.constructor === Object;
+export const isFunc = thing => typeof thing === 'function';
+export const isNum = thing => !isNaN(parseFloat(thing)) && !isNaN(thing - 0);
+export const isBool = thing => typeof thing === 'boolean';
+export const isObjOrArr = (thing) => (isObj(thing) || isArray(thing));
+export const isInteger = thing => String(Math.floor(Number(thing))) === thing;
+export const isMap = thing => thing instanceof Map;
+export const isSet = thing => thing instanceof Set;
+export const isPromise = thing => isObj(thing) && isFunc(thing.then);
+
 
 
 /*################################
 ##################################
 
-PARSING
+        COMPARISON, CHECKS
+
+##################################
+################################*/
+
+export const hasNoKeys = x => {
+    for (var key in x) if (Object.prototype.hasOwnProperty.call(x, key)) return false;
+    return true;
+}
+
+export const isEmpty = (x) => {
+    if (!x) return true;
+    else if (isArray(x)) {
+        if (x.length === 0) return true
+    } else if (isObj(x) || isFunc(x)) {
+        if (hasNoKeys(x)) return true;
+    } else if (isMap(x) || isSet(x)) {
+        if (x.size === 0) return true;
+    }
+    return false;
+}
+
+
+export const arrayIncludesItemFromArray = (arr1, arr2) => {
+    let len1 = arr1.length, len2 = arr2.length;
+    if (!len1 && !len2 || len1 && !len2 || !len1 && len2) return false;
+    for (let i = len1; i--;) if (arr2.includes(arr1[i])) return true;
+    return false;
+};
+
+export const arrayIncludesAllItemsFromArray = (arr1, arr2) => {
+    let len1 = arr1.length, len2 = arr2.length;
+    if (!len1 && !len2 || len1 && !len2 || !len1 && len2) return false;
+    for (let i = len2; i--;) if (arr1.includes(arr2[i])) return true;
+    return false;
+};
+
+/**
+ * compare 2 array
+ * @param {array} before
+ * @param {array} after
+ * @example
+ * isEqualArray([1,2,3,4],[1,2,3,4]) // true
+ * isEqualArray([1,2,3,4],[1,2,3])   // false
+ * isEqualArray([5,1,2,3],[1,2,3,5]) // false
+ * isEqualArray([],[]) // true
+ * @returns {boolean}
+ */
+export const isEqualArray = (before, after) => {
+    let length = before.length;
+    if (length !== after.length) return false;
+    for (let i = 0; i < length; i++) if (before[i] !== after[i]) return false;
+    return true;
+};
+
+export const propsChanged = (a = {}, b = {}) => {
+    for (let i in a) if (!(i in b)) return true;
+    for (let i in b) if (a[i] !== b[i]) return true;
+    return false;
+};
+
+// a smidge faster for when theres known/equal number of keys
+export const fixedPropsChanged = (a = {}, b = {}) => {
+    for (let i in b) if (a[i] !== b[i]) return true;
+    return false;
+};
+
+const is = (x, y) => {
+    if (x === y) return x !== 0 || y !== 0 || 1 / x === 1 / y;
+    return x !== x && y !== y; // eslint-disable-line
+};
+
+
+export const shallowEqual = (objA, objB) => {
+    if (is(objA, objB)) return true;
+
+    if (typeof objA !== 'object' || objA === null
+        || typeof objB !== 'object' || objB === null) {
+        return false;
+    }
+
+    const keysA = Object.keys(objA);
+    const keysB = Object.keys(objB);
+
+    if (keysA.length !== keysB.length) return false;
+
+    for (let i = 0; i < keysA.length; i++) { //eslint-disable-line
+        if (!hasOwn.call(objB, keysA[i])
+            || !is(objA[keysA[i]], objB[keysA[i]])) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+
+/*################################
+##################################
+
+           PARSING
 
 ##################################
 ################################*/
@@ -54,7 +152,7 @@ export const jsonParse = str => {
 /*################################
 ##################################
 
-MISC
+            MISC
 
 ##################################
 ################################*/
@@ -92,7 +190,7 @@ export const memoizeArgs = fn => {
 /*################################
 ##################################
 
-BROWSER
+            BROWSER
 
 ##################################
 ################################*/
@@ -149,7 +247,7 @@ export const onTap = (fn) => ({[_onTouchClick]: fn});
 /*################################
 ##################################
 
-STORAGE
+            STORAGE
 
 ##################################
 ################################*/
@@ -190,7 +288,7 @@ export const CreateSingleItemStorage = storageKey => ({
 /*################################
 ##################################
 
-URL, ROUTING, PARAMS
+        URL, ROUTING, PARAMS
 
 ##################################
 ################################*/
@@ -240,7 +338,7 @@ export const stringifyParams = (obj, noQuestionMark) => {
 export const url = (strings, ...interpolations) =>
     strings.reduce((out, string, i) => {
         let value = interpolations[i];
-        if (isPlainObject(value)) {
+        if (isObj(value)) {
             value = isEmpty(value)
                 ? ''
                 : `${string.endsWith('?') ? '' : '?'}${stringifyParams(value)}`
@@ -253,7 +351,7 @@ export const url = (strings, ...interpolations) =>
 /*################################
 ##################################
 
-FETCH
+            FETCH
 
 ##################################
 ################################*/
@@ -285,7 +383,7 @@ export const joinEndpointInterpolations = (strings, interpolations) =>
             out.url += string.trim();
             return out;
         }
-        if (isPlainObject(value)) {
+        if (isObj(value)) {
             if (!isEmpty(value)) out.params = value = `?${stringifyParams(value)}`;
             else value = '';
         } else if (value === undefined) value = '';
@@ -346,7 +444,7 @@ export const API = (
 /*################################
 ##################################
 
-OBJECTS
+            OBJECTS
 
 ##################################
 ################################*/
@@ -378,10 +476,10 @@ export const deepMerge = (o, p) => {
 // https://github.com/mui-org/material-ui/blob/next/packages/material-ui-utils/src/deepmerge.ts
 export const deepMergeObj = (target, source, options = {clone: true}) => {
     var output = options.clone ? {...target} : target;
-    if (isPlainObject(target) && isPlainObject(source)) {
+    if (isObj(target) && isObj(source)) {
         Object.keys(source).forEach(key => {
             if (key === '__proto__') return;  // Avoid prototype pollution
-            if (isPlainObject(source[key]) && key in target && isPlainObject(target[key])) {
+            if (isObj(source[key]) && key in target && isObj(target[key])) {
                 output[key] = deepMergeObj(target[key], source[key], options);
             } else output[key] = source[key];
         });
@@ -431,7 +529,7 @@ export function setIn(obj, path, value) {
         const currentPath = pathArray[i];
         let currentObj = getIn(obj, pathArray.slice(0, i + 1));
 
-        if (currentObj && (isObject(currentObj) || Array.isArray(currentObj))) {
+        if (currentObj && (isObj(currentObj) || Array.isArray(currentObj))) {
             resVal = resVal[currentPath] = clone(currentObj);
         } else {
             const nextPath = pathArray[i + 1];
@@ -497,7 +595,7 @@ export const formatObjArrForSimpleTable = (objArr, excludeKeys = [], formatter =
 /*################################
 ##################################
 
-ARRAYS
+            ARRAYS
 
 ##################################
 ################################*/
@@ -508,7 +606,7 @@ export const getTotalOfPropInObjArr = (objArr, prop, initial = 0) =>
 export const groupObjArrByProp = (objArr, prop, condition = x => !!x) => {
     const groups = {}, others = [];
     objArr.forEach(item => {
-        const groupName = isFunction(prop) ? prop(item) : item[prop];
+        const groupName = isFunc(prop) ? prop(item) : item[prop];
         const shouldGroup = condition(groupName);
         (shouldGroup ? groups[groupName] || (groups[groupName] = []) : others).push(item);
     });
@@ -517,7 +615,7 @@ export const groupObjArrByProp = (objArr, prop, condition = x => !!x) => {
 
 export const sortOrderOfObjArr = (arr, propKeyOrGetterFunc, descend) => {
     let nameA, nameB, lowerIt = val => typeof val === 'string' ? val.toLowerCase() : val;
-    const get = isFunction(propKeyOrGetterFunc)
+    const get = isFunc(propKeyOrGetterFunc)
         ? obj => (propKeyOrGetterFunc(obj))
         : obj => (obj[propKeyOrGetterFunc]);
     return arr.sort((a, b) => {
@@ -615,90 +713,7 @@ export const array1IncludesAllItemsFromArray2 = (arr1, arr2) => {
 /*################################
 ##################################
 
-COMPARISON, CHECKS
-
-##################################
-################################*/
-
-export const objectIsEmpty = obj => Object.keys(obj || {}).length === 0;
-
-export const arrayIncludesItemFromArray = (arr1, arr2) => {
-    let len1 = arr1.length, len2 = arr2.length;
-    if (!len1 && !len2 || len1 && !len2 || !len1 && len2) return false;
-    for (let i = len1; i--;) if (arr2.includes(arr1[i])) return true;
-    return false;
-};
-
-export const arrayIncludesAllItemsFromArray = (arr1, arr2) => {
-    let len1 = arr1.length, len2 = arr2.length;
-    if (!len1 && !len2 || len1 && !len2 || !len1 && len2) return false;
-    for (let i = len2; i--;) if (arr1.includes(arr2[i])) return true;
-    return false;
-};
-
-/**
- * compare 2 array
- * @param {array} before
- * @param {array} after
- * @example
- * isEqualArray([1,2,3,4],[1,2,3,4]) // true
- * isEqualArray([1,2,3,4],[1,2,3])   // false
- * isEqualArray([5,1,2,3],[1,2,3,5]) // false
- * isEqualArray([],[]) // true
- * @returns {boolean}
- */
-export const isEqualArray = (before, after) => {
-    let length = before.length;
-    if (length !== after.length) return false;
-    for (let i = 0; i < length; i++) if (before[i] !== after[i]) return false;
-    return true;
-};
-
-export const propsChanged = (a = {}, b = {}) => {
-    for (let i in a) if (!(i in b)) return true;
-    for (let i in b) if (a[i] !== b[i]) return true;
-    return false;
-};
-
-// a smidge faster for when theres known/equal number of keys
-export const fixedPropsChanged = (a = {}, b = {}) => {
-    for (let i in b) if (a[i] !== b[i]) return true;
-    return false;
-};
-
-const is = (x, y) => {
-    if (x === y) return x !== 0 || y !== 0 || 1 / x === 1 / y;
-    return x !== x && y !== y; // eslint-disable-line
-};
-
-
-export const shallowEqual = (objA, objB) => {
-    if (is(objA, objB)) return true;
-
-    if (typeof objA !== 'object' || objA === null
-        || typeof objB !== 'object' || objB === null) {
-        return false;
-    }
-
-    const keysA = Object.keys(objA);
-    const keysB = Object.keys(objB);
-
-    if (keysA.length !== keysB.length) return false;
-
-    for (let i = 0; i < keysA.length; i++) { //eslint-disable-line
-        if (!hasOwn.call(objB, keysA[i])
-            || !is(objA[keysA[i]], objB[keysA[i]])) {
-            return false;
-        }
-    }
-
-    return true;
-};
-
-/*################################
-##################################
-
-ASYNC
+            ASYNC
 
 ##################################
 ################################*/
@@ -739,7 +754,7 @@ export const createProcessor = onUpdateComplete => {
 /*################################
 ##################################
 
-DATE TIME
+            DATE TIME
 
 ##################################
 ################################*/
@@ -757,7 +772,7 @@ export const formatSeconds = seconds =>
 /*################################
 ##################################
 
-TIMING
+            TIMING
 
 ##################################
 ################################*/
@@ -801,7 +816,7 @@ export const oncePerSecond = callback => {
 /*################################
 ##################################
 
-EVENTS, QUEUE, SUBSCRIPTIONS
+    EVENTS, QUEUE, SUBSCRIPTIONS
 
 ##################################
 ################################*/
@@ -865,23 +880,33 @@ export const onEnterKey = cb => ({
 /*################################
 ##################################
 
-STRINGS
+           STRINGS
 
 ##################################
 ################################*/
 
-//alias
-export const snakeToSentenceCase = text => startCase(text);
+
 
 export const reduceWhiteSpaceToMax1Space = string =>
     string.trim().split('\n').join(' ').split('\r').join(' ').split('\t').join(' ').replace(/ +/g, ' ');
 
 export const capitalize = string => string.charAt(0).toUpperCase() + string.slice(1);
 
+export const capEachFirst = (string) =>
+    string.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+
+export const deSnake = text => text.split('_').join(' ');
+
+export const deKebab = text => text.split('-').join(' ');
+
+export const snakeToSentenceCase = text => capEachFirst(deSnake(text));
+
+
+
 /*################################
 ##################################
 
-RANDOM, NUMBER GENERATION, UNIQUE IDS, HASH
+    RANDOM, NUMBER GENERATION, UNIQUE IDS, HASH
 
 ##################################
 ################################*/
