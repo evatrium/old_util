@@ -157,7 +157,7 @@ export const jsonParse = str => {
 ##################################
 ################################*/
 
-export const stringify = (data) => {
+export const stringify = (data = []) => {
     let out = '';
     for (let key in data) {
         let val = data[key];
@@ -339,8 +339,7 @@ export const url = (strings, ...interpolations) =>
     strings.reduce((out, string, i) => {
         let value = interpolations[i];
         if (isObj(value)) {
-            value = isEmpty(value)
-                ? ''
+            value = isEmpty(value) ? ''
                 : `${string.endsWith('?') ? '' : '?'}${stringifyParams(value)}`
         }
         if (value === undefined) value = '';
@@ -735,8 +734,8 @@ export const cancelablePromise = (promise) => {
 };
 
 export const till = promise => promise
-    .then(data => ({data, ok: true}))
-    .catch(error => Promise.resolve({error, ok: false}));
+    .then(data => ({data}))
+    .catch(error => Promise.resolve({error}));
 
 export const createProcessor = onUpdateComplete => {
     const promise = new Promise(resolve => resolve());
