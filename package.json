@@ -34,7 +34,7 @@
 	],
 	"scripts": {
 		"start": "wmr",
-		"build": "microbundle",
+		"build": "microbundle --name iosioUtil",
 		"test": "exit 0"
 	},
 	"devDependencies": {
