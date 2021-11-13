@@ -29,7 +29,6 @@ export const isSet = thing => thing instanceof Set;
 export const isPromise = thing => isObj(thing) && isFunc(thing.then);
 
 
-
 /*################################
 ##################################
 
@@ -493,6 +492,26 @@ export function getIn(obj, key, def, p = 0) {
     return obj === undefined ? def : obj;
 }
 
+//https://github.com/developit/dlv
+export const dlv = (obj, key, def, p, undef) => {
+    key = key.split ? key.split('.') : key;
+    for (p = 0; p < key.length; p++) {
+        obj = obj ? obj[key[p]] : undef;
+    }
+    return obj === undef ? def : obj;
+};
+
+// https://github.com/kalmbach/bury/blob/master/index.js
+export const bury = (obj, key, value) => {
+    key = key.split ? key.split('.') : key;
+
+    let p = 0;
+    let z = key[key.length - 1];
+
+    while (obj.hasOwnProperty(key[p]) && key[p] !== z) obj = obj[key[p++]];
+    return obj.hasOwnProperty(z) ? obj[z] = value : undefined;
+}
+
 // https://github.com/formium/formik/blob/master/packages/formik/src/utils.ts
 /**
  * Deeply set a value from in object via it's path. If the value at `path`
@@ -885,7 +904,6 @@ export const onEnterKey = cb => ({
 ################################*/
 
 
-
 export const reduceWhiteSpaceToMax1Space = string =>
     string.trim().split('\n').join(' ').split('\r').join(' ').split('\t').join(' ').replace(/ +/g, ' ');
 
@@ -899,7 +917,6 @@ export const deSnake = text => text.split('_').join(' ');
 export const deKebab = text => text.split('-').join(' ');
 
 export const snakeToSentenceCase = text => capEachFirst(deSnake(text));
-
 
 
 /*################################

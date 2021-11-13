@@ -4,13 +4,16 @@
 	"description": "collection of js utils",
 	"type": "module",
 	"source": "src/index.js",
+	"main": "./lib/iosio-util.js",
+	"umd:main": "./lib/iosio-util.umd.js",
+	"module": "./lib/iosio-util.module.js",
+	"unpkg": "./lib/iosio-util.umd.js",
 	"exports": {
-		"require": "./lib/iosio-utils.cjs",
-		"default": "./lib/iosio-utils.modern.js"
+		"browser": "./lib/iosio-util.module.js",
+		"import": "./lib/iosio-util.mjs",
+		"require": "./lib/iosio-util.cjs",
+		"default": "./lib/iosio-util.modern.js"
 	},
-	"main": "./lib/iosio-utils.cjs",
-	"module": "./lib/iosio-utils.module.js",
-	"unpkg": "./lib/iosio-utils.umd.js",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/iosio/util.git"
