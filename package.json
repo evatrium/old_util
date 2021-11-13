@@ -39,9 +39,8 @@
 	},
 	"devDependencies": {
 		"microbundle": "^0.14.1",
-		"wmr": "^3.7.2"
-	},
-	"dependencies": {
+		"wmr": "^3.7.2",
 		"lodash": "^4.17.21"
-	}
+	},
+	"dependencies": {}
 }
