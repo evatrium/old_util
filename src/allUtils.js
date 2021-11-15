@@ -756,7 +756,7 @@ export const formatSeconds = seconds =>
 // }
 
 // https://github.com/mui-org/material-ui/blob/master/packages/mui-utils/src/debounce.js
-export default function debounce(func, wait = 166) {
+export function debounce(func, wait = 166) {
     let timeout;
     function debounced(...args) {
         const later = () => {
