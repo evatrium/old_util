@@ -492,7 +492,8 @@ export function getIn(obj, key, def, p = 0) {
 }
 
 // inspired by https://github.com/formium/formik/blob/master/packages/formik/src/utils.ts
-// better tailored for change detection
+// This is Jarad Palmer's version of setIn.
+// It is better tailored for more accurate change detection in state management
 export function setIn(obj, path, value) {
     let res = shallowCopy(obj);
     let resVal = res;
@@ -679,6 +680,14 @@ export const array1IncludesAllItemsFromArray2 = (arr1, arr2) => {
 
 ##################################
 ################################*/
+
+export const tryCatch = async prom => {
+    try {
+        return {data: await prom, error: null}
+    } catch (error) {
+        return {error, data: null}
+    }
+}
 
 export const cancelablePromise = (promise) => {
     let hasCanceled = false;
