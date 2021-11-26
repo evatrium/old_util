@@ -258,23 +258,40 @@ let ls = {
 
 if (isBrowser) ls = window.localStorage;
 
-export const localStore = {
-    clear: () => ls.clear(),
-    removeItem: key => ls.removeItem(key),
-    setItem: (key, val) => ls.setItem(key, JSON.stringify(val)),
-    getItem: key => {
-        let item = ls.getItem(key);
-        if (!item || item === 'undefined') return null;
-        const {data} = jsonParse(item);
-        return data || null;
+
+export const CreateLocalStore = ({namespace = '', debounceSet = 500} = {}) => {
+
+    const localStoreSetItem = (key, val) => ls.setItem(namespace + (key || ''), JSON.stringify(val));
+    const setItemDebounced = debounce(localStoreSetItem, debounceSet);
+
+    return {
+        clear: () => ls.clear(),
+        removeItem: key => ls.removeItem(namespace + (key || '')),
+        setItem: localStoreSetItem,
+        setItemDebounced,
+        subscribe: callback => eventListener(window, 'storage', callback),
+        getItem: key => {
+            let item = ls.getItem(namespace + (key || ''));
+            if (!item || item === 'undefined') return null;
+            const {data} = jsonParse(item);
+            return data || null;
+        }
+    }
+}
+
+export const localStore = CreateLocalStore();
+
+// will depreciate this because the newly added function above "createLocalStore"  achieves the same thing
+export const CreateSingleItemStorage = (storageKey, {namespace = '', debounceSet = 500} = {}) => {
+    console.warn('this will be depreciated in favor of CreateLocalStore');
+    const localStore = CreateLocalStore({namespace, debounceSet});
+    return {
+        remove: () => localStore.removeItem(storageKey),
+        set: value => localStore.setItem(storageKey, value),
+        setDebounced: value => localStore.setItemDebounced(storageKey, value),
+        get: () => localStore.getItem(storageKey)
     }
 };
-
-export const CreateSingleItemStorage = storageKey => ({
-    remove: () => localStore.removeItem(),
-    set: value => localStore.setItem(storageKey, value),
-    get: () => localStore.getItem(storageKey)
-});
 
 
 /*################################
@@ -391,45 +408,50 @@ export const API = (
         onResponseOk = new Set(),
         onFailStatus = new Set(),
         onFinally = new Set()
-    }, _token) => Object.assign(async (objOrTemplateStringsArray, ...interpolations) => {
-    let request = isArray(objOrTemplateStringsArray)
-        ? joinEndpointInterpolations(objOrTemplateStringsArray, interpolations)
-        : objOrTemplateStringsArray;
-    let response;
-    const callback = f => f(request, response);
-    const {method, url, body} = request;
-    try {
-        response = await fetch(API_URL + url, {
-            method,
-            ...(body && {body}),
-            ...api.getFetchOptions(request)
-        });
-        if (response.ok) {
-            api.onResponseOk.forEach(callback);
+    }, _token) => {
+    const api = async (objOrTemplateStringsArray, ...interpolations) => {
+        let request = isArray(objOrTemplateStringsArray)
+            ? joinEndpointInterpolations(objOrTemplateStringsArray, interpolations)
+            : objOrTemplateStringsArray;
+        let response;
+        const callback = f => f(request, response);
+        const {method, url, body} = request;
+        try {
+            response = await fetch(API_URL + url, {
+                method,
+                ...(body && {body}),
+                ...api.getFetchOptions(request)
+            });
+            if (response.ok) {
+                api.onResponseOk.forEach(callback);
+                api.onFinally.forEach(callback);
+                return Promise.resolve(responseTypeIsJSON(response) ? await response.json() : response);
+            }
+            const err = new Error(await response.text() || response.statusText);
+            err.response = response;
+            api.onFailStatus.forEach(callback);
             api.onFinally.forEach(callback);
-            return Promise.resolve(responseTypeIsJSON(response) ? await response.json() : response);
+            return Promise.reject(err);
+        } catch (error) {
+            response = {ok: false, status: 1000, statusText: error.message};
+            api.onFailStatus.forEach(callback);
+            api.onFinally.forEach(callback);
+            error.response = response;
+            return Promise.reject(error);
         }
-        const err = new Error(await response.text() || response.statusText);
-        err.response = response;
-        api.onFailStatus.forEach(callback);
-        api.onFinally.forEach(callback);
-        return Promise.reject(err);
-    } catch (error) {
-        response = {ok: false, status: 1000, statusText: error.message};
-        api.onFailStatus.forEach(callback);
-        api.onFinally.forEach(callback);
-        error.response = response;
-        return Promise.reject(error);
-    }
-}, {
-    getFetchOptions,
-    onResponseOk, onFailStatus, onFinally,
-    auth: {
-        setToken: t => (_token = t),
-        getToken: () => (_token),
-        clearToken: () => (_token = undefined)
-    }
-});
+    };
+
+    Object.assign(api, {
+        getFetchOptions,
+        onResponseOk, onFailStatus, onFinally,
+        auth: {
+            setToken: t => (_token = t),
+            getToken: () => (_token),
+            clearToken: () => (_token = undefined)
+        }
+    });
+    return api;
+};
 
 
 /*################################
@@ -461,8 +483,7 @@ export const deepCopy = o => {
 
 // *experimental - merge objects and arrays
 export const deepMerge = (o, p) => {
-    if (isObjOrArr(p)) for (let k in p) o[k] = isObjOrArr(p[k])
-        ? deepMerge(o[k] || (o[k] = emptyTarget(p[k])), p[k]) : p[k];
+    if (isObjOrArr(p)) for (let k in p) o[k] = isObjOrArr(p[k]) ? deepMerge(o[k] || (o[k] = emptyTarget(p[k])), p[k]) : p[k];
     else o = p;
     return o;
 };
@@ -673,6 +694,18 @@ export const array1IncludesAllItemsFromArray2 = (arr1, arr2) => {
     return true;
 };
 
+
+export function closestItem(arr, item) {
+    const index = arr.indexOf(item);
+    if (index === -1) {
+        return arr[0];
+    } else if (index === arr.length - 1) {
+        return arr[arr.length - 2];
+    } else {
+        return arr[index + 1];
+    }
+}
+
 /*################################
 ##################################
 
@@ -725,7 +758,7 @@ export const createProcessor = onUpdateComplete => {
 /*################################
 ##################################
 
-            DATE TIME
+            DATE / TIME
 
 ##################################
 ################################*/
@@ -749,24 +782,25 @@ export const formatSeconds = seconds =>
 ################################*/
 
 //
-// export function debounce(func, wait, immediate) {
-//     var timeout;
-//     return function () {
-//         var context = this, args = arguments;
-//         var later = function () {
-//             timeout = null;
-//             if (!immediate) func.apply(context, args);
-//         };
-//         var callNow = immediate && !timeout;
-//         clearTimeout(timeout);
-//         timeout = setTimeout(later, wait);
-//         if (callNow) func.apply(context, args);
-//     };
-// }
+export function debounced(func, wait, immediate) {
+    var timeout;
+    return function () {
+        var context = this, args = arguments;
+        var later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+}
 
 // https://github.com/mui-org/material-ui/blob/master/packages/mui-utils/src/debounce.js
 export function debounce(func, wait = 166) {
     let timeout;
+
     function debounced(...args) {
         const later = () => {
             func.apply(this, args);
@@ -785,6 +819,7 @@ export function debounce(func, wait = 166) {
 // stackoverflow : make-javascript-interval-synchronize-with-actual-time
 // get the current time rounded down to a whole second in milliseconds (with a 10% margin)
 export const getCurrentRoundedTimeMs = () => 1000 * Math.floor(Date.now() / 1000 + 0.1);
+
 export const oncePerSecond = callback => {
     let timeout, stop;
     const fn = () => {
