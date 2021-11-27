@@ -410,7 +410,7 @@ export const API = (
         onFinally = new Set()
     }, _token) => {
     const api = async (objOrTemplateStringsArray, ...interpolations) => {
-        let request = isArray(objOrTemplateStringsArray)
+        let request = Array.isArray(objOrTemplateStringsArray)
             ? joinEndpointInterpolations(objOrTemplateStringsArray, interpolations)
             : objOrTemplateStringsArray;
         let response;
@@ -425,7 +425,11 @@ export const API = (
             if (response.ok) {
                 api.onResponseOk.forEach(callback);
                 api.onFinally.forEach(callback);
-                return Promise.resolve(responseTypeIsJSON(response) ? await response.json() : response);
+
+                if (responseTypeIsJSON(response)) {
+                    response = await response.json()
+                }
+                return Promise.resolve(response);
             }
             const err = new Error(await response.text() || response.statusText);
             err.response = response;
