@@ -38,9 +38,9 @@
 		"test": "exit 0"
 	},
 	"devDependencies": {
+		"lodash": "^4.17.21",
 		"microbundle": "^0.14.1",
-		"wmr": "^3.7.2",
-		"lodash": "^4.17.21"
-	},
-	"dependencies": {}
+		"preact": "^10.6.4",
+		"wmr": "^3.7.2"
+	}
 }

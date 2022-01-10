@@ -270,6 +270,22 @@ export const CreateLocalStore = ({namespace = '', debounceSet = 500} = {}) => {
         setItem: localStoreSetItem,
         setItemDebounced,
         subscribe: callback => eventListener(window, 'storage', callback),
+        subscribeToKey: (key, callback) => {
+            return eventListener(window, 'storage', (e) => {
+                if (e.storageArea === localStorage && e.key === key) {
+                    const {data} = jsonParse(e.newValue);
+                    callback(data || null);
+                }
+            })
+        },
+        subscribeToNameSpace: callback => {
+            return eventListener(window, 'storage', (e) => {
+                if (e.storageArea === localStorage && e.key.startsWith(namespace)) {
+                    const {data} = jsonParse(e.newValue);
+                    callback(data || null);
+                }
+            })
+        },
         getItem: key => {
             let item = ls.getItem(namespace + (key || ''));
             if (!item || item === 'undefined') return null;
