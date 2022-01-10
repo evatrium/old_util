@@ -495,11 +495,12 @@ const emptyTarget = val => isObj(val) ? {} : isArray(val) ? [] : val;
 
 export const shallowCopy = objOrArr => assign(emptyTarget(objOrArr), objOrArr)
 
-export const deepCopy = o => {
-    let copy = emptyTarget(o);
-    if (isObjOrArr(o)) for (let k in o) copy[k] = isObjOrArr(o[k]) ? deepCopy(o[k]) : o[k];
-    return copy;
-};
+// export const deepCopy = o => {
+//     let copy = emptyTarget(o);
+//     if (isObjOrArr(o)) for (let k in o) copy[k] = isObjOrArr(o[k]) ? deepCopy(o[k]) : o[k];
+//     return copy;
+// };
+export const deepCopy = o => JSON.parse(JSON.stringify(o));
 
 // *experimental - merge objects and arrays
 export const deepMerge = (o, p) => {
