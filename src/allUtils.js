@@ -10,8 +10,8 @@
 
 export const isArray = Array.isArray;
 export const isString = thing => typeof thing === 'string';
-export const isObj = thing => thing !== null && typeof thing === 'object';
 export const isPlainObject = thing => thing !== null && typeof thing === 'object' && thing.constructor === Object;
+export const isObj = isPlainObject;
 export const isFunc = thing => typeof thing === 'function';
 export const isNum = thing => !isNaN(parseFloat(thing)) && !isNaN(thing - 0);
 export const isBool = thing => typeof thing === 'boolean';
@@ -491,7 +491,7 @@ export const assign = (obj, props) => {
 };
 export const extend = assign;
 
-const emptyTarget = val => isObj(val) ? {} : isArray(val) ? [] : val;
+const emptyTarget = val =>  isArray(val) ? [] : isObj(val) ? {} : val;
 
 export const shallowCopy = objOrArr => assign(emptyTarget(objOrArr), objOrArr)
 
@@ -500,6 +500,7 @@ export const shallowCopy = objOrArr => assign(emptyTarget(objOrArr), objOrArr)
 //     if (isObjOrArr(o)) for (let k in o) copy[k] = isObjOrArr(o[k]) ? deepCopy(o[k]) : o[k];
 //     return copy;
 // };
+
 export const deepCopy = o => JSON.parse(JSON.stringify(o));
 
 // *experimental - merge objects and arrays
