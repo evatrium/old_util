@@ -3,11 +3,14 @@ import {
     // toPath
 } from '../src';
 import {h, render} from 'preact';
+import {shallowEqual} from '../src';
 
+const arr1 = ['hello'];
+const arr2 = ['hello'];
 
+console.log(shallowEqual(arr1, arr2));
 
-
-
+console.log(Object.is(arr1, arr2));
 
 
 // render(<App/>, document.body);

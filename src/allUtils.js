@@ -92,34 +92,53 @@ export const fixedPropsChanged = (a = {}, b = {}) => {
     return false;
 };
 
-const is = (x, y) => {
-    if (x === y) return x !== 0 || y !== 0 || 1 / x === 1 / y;
-    return x !== x && y !== y; // eslint-disable-line
-};
 
+// https://github.com/dashed/shallowequal
+export function shallowEqual(objA, objB, compare, compareContext) {
+    var ret = compare ? compare.call(compareContext, objA, objB) : void 0;
 
-export const shallowEqual = (objA, objB) => {
-    if (is(objA, objB)) return true;
+    if (ret !== void 0) {
+        return !!ret;
+    }
 
-    if (typeof objA !== 'object' || objA === null
-        || typeof objB !== 'object' || objB === null) {
+    if (Object.is(objA, objB)) {
+        return true;
+    }
+
+    if (typeof objA !== "object" || !objA || typeof objB !== "object" || !objB) {
         return false;
     }
 
-    const keysA = Object.keys(objA);
-    const keysB = Object.keys(objB);
+    var keysA = Object.keys(objA);
+    var keysB = Object.keys(objB);
 
-    if (keysA.length !== keysB.length) return false;
+    if (keysA.length !== keysB.length) {
+        return false;
+    }
 
-    for (let i = 0; i < keysA.length; i++) { //eslint-disable-line
-        if (!hasOwn.call(objB, keysA[i])
-            || !is(objA[keysA[i]], objB[keysA[i]])) {
+    var bHasOwnProperty = Object.prototype.hasOwnProperty.bind(objB);
+
+    // Test for A's keys different from B.
+    for (var idx = 0; idx < keysA.length; idx++) {
+        var key = keysA[idx];
+
+
+        if (!bHasOwnProperty(key)) {
+            return false;
+        }
+
+        var valueA = objA[key];
+        var valueB = objB[key];
+
+        ret = compare ? compare.call(compareContext, valueA, valueB, key) : void 0;
+
+        if (ret === false || (ret === void 0 && !Object.is(valueA, valueB))) {
             return false;
         }
     }
 
     return true;
-};
+}
 
 
 /*################################
@@ -561,6 +580,20 @@ export function setIn(obj, path, value) {
     if (i === 0 && value === undefined) delete res[pathArray[i]];
     return res;
 }
+/*
+// WARNING: This is not a drop in replacement solution and
+// it might not work for some edge cases. Test your code!
+const set = (obj, path, value) => {
+  // Regex explained: https://regexr.com/58j0k
+  const pathArray = Array.isArray(path) ? path : path.match(/([^[.\]])+/g)
+
+  pathArray.reduce((acc, key, i) => {
+    if (acc[key] === undefined) acc[key] = {}
+    if (i === pathArray.length - 1) acc[key] = value
+    return acc[key]
+  }, obj)
+}
+ */
 
 
 export const selectAndOthers = ({props, select, fallbacks} = {}) => {
