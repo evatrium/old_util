@@ -251,8 +251,11 @@ export const installOfflineWatcher = offlineUpdatedCallback => {
     });
 };
 
-const _onTouchClick = (isBrowser && ('ontouchstart' in window)) ? 'onTouchStart' : 'onClick';
-export const onTap = (fn) => ({[_onTouchClick]: fn});
+export const isMobile = () => {
+    const userAgent = typeof navigator === 'undefined' ? 'SSR' : navigator.userAgent;
+
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+}
 
 
 /*################################
@@ -954,6 +957,10 @@ export const onEnterKey = cb => ({
         (e.keyCode ? e.keyCode : e.which) === 13 && cb && cb();
     }
 });
+
+
+const _onTouchClick = (isBrowser && ('ontouchstart' in window)) ? 'onTouchStart' : 'onClick';
+export const onTap = (fn) => ({[_onTouchClick]: fn});
 
 
 /*################################
