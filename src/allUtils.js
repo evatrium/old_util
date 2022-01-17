@@ -954,7 +954,7 @@ export const Eventer = (all) => {
 
 export const onEnterKey = cb => ({
     onKeyDown: e => {
-        (e.keyCode ? e.keyCode : e.which) === 13 && cb && cb();
+        (e.keyCode ? e.keyCode : e.which) === 13 && cb && cb(e);
     }
 });
 
