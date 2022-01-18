@@ -513,7 +513,7 @@ export const assign = (obj, props) => {
 };
 export const extend = assign;
 
-const emptyTarget = val =>  isArray(val) ? [] : isObj(val) ? {} : val;
+const emptyTarget = val => isArray(val) ? [] : isObj(val) ? {} : val;
 
 export const shallowCopy = objOrArr => assign(emptyTarget(objOrArr), objOrArr)
 
@@ -583,6 +583,7 @@ export function setIn(obj, path, value) {
     if (i === 0 && value === undefined) delete res[pathArray[i]];
     return res;
 }
+
 /*
 // WARNING: This is not a drop in replacement solution and
 // it might not work for some edge cases. Test your code!
@@ -812,6 +813,7 @@ export const createProcessor = onUpdateComplete => {
     };
 };
 
+export const wait = time => new Promise(r => setTimeout(r, time));
 
 /*################################
 ##################################
