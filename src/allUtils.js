@@ -584,14 +584,11 @@ export const deepMerge = (target, source) => {
         const targetValue = target[key];
         const sourceValue = source[key];
 
-        try {
-            target[key] =
-                (isObject(targetValue) && isObject(sourceValue)) ||
-                (isArray(targetValue) && isArray(sourceValue))
-                    ? deepMerge(targetValue, sourceValue)
-                    : sourceValue;
-        } catch {
-        }
+        target[key] =
+            (isObject(targetValue) && isObject(sourceValue)) ||
+            (isArray(targetValue) && isArray(sourceValue))
+                ? deepMerge(targetValue, sourceValue)
+                : sourceValue;
     }
 
     return target;
