@@ -587,7 +587,32 @@ export function copyDeep(data) {
 }
 
 // inspired by react-hook-form util
-export const deepMerge = (target, source) => {
+export const deepMerge = (target, source, clone = {clone: false}) => {
+    if (isPrimitive(target) || isPrimitive(source)) {
+        return source;
+    }
+
+    for (const key in source) {
+        const targetValue = target[key];
+        const sourceValue = source[key];
+
+        const bothAreObjectsOrBothAreArrays =
+            (isObject(targetValue) && isObject(sourceValue))
+            || (isArray(targetValue) && isArray(sourceValue));
+
+        if (bothAreObjectsOrBothAreArrays) {
+
+            target[key] = deepMerge(targetValue, sourceValue);
+        } else {
+            target[key] = sourceValue
+        }
+
+    }
+
+    return target;
+}
+
+export const hydrateFunctions = (target, source) => {
     if (isPrimitive(target) || isPrimitive(source)) {
         return source;
     }
@@ -602,7 +627,7 @@ export const deepMerge = (target, source) => {
 
         if (bothAreObjectsOrBothAreArrays) {
             target[key] = deepMerge(targetValue, sourceValue);
-        } else {
+        } else if(isFunc(sourceValue)){
             target[key] = sourceValue
         }
 
