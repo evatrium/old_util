@@ -1,3 +1,3 @@
 import isEqual from 'lodash/isEqual';
-
-export {isEqual}
+import cloneDeep from "lodash/cloneDeep";
+export {isEqual, cloneDeep}

@@ -1,4 +1,4 @@
-//
+import {cloneDeep} from './lodash';
 /*################################
 ##################################
 
@@ -523,8 +523,8 @@ export const shallowCopy = objOrArr => assign(emptyTarget(objOrArr), objOrArr)
 //     return copy;
 // };
 
-export const deepCopy = o => JSON.parse(JSON.stringify(o));
-
+export const deepCopy = (...args) => cloneDeep(...args);
+export const deepCopySerializable = o => JSON.parse(JSON.stringify(o));
 // *experimental - merge objects and arrays
 export const deepMerge = (o, p) => {
     if (isObjOrArr(p)) for (let k in p) o[k] = isObjOrArr(p[k]) ? deepMerge(o[k] || (o[k] = emptyTarget(p[k])), p[k]) : p[k];
