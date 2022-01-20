@@ -531,7 +531,7 @@ export const shallowCopy = objOrArr => assign(emptyTarget(objOrArr), objOrArr)
 //     return copy;
 // };
 
-// react hooked form utils
+// inspired by react hooked form utils
 //https://github.com/react-hook-form/react-hook-form/blob/master/src/utils/deepEqual.ts
 export const isEqual = (object1, object2) => {
     if (isPrimitive(object1) || isPrimitive(object2)) {
@@ -550,15 +550,15 @@ export const isEqual = (object1, object2) => {
         if (!keys2.includes(key)) {
             return false;
         }
-        if (key !== 'ref') {
-            const val2 = object2[key];
-            if ((isDateObject(val1) && isDateObject(val2)) ||
+        const val2 = object2[key];
+
+        if (
+            (isDateObject(val1) && isDateObject(val2)) ||
             (isObj(val1) && isObj(val2)) ||
             (isArray(val1) && isArray(val2))
                 ? !isEqual(val1, val2)
                 : val1 !== val2) {
-                return false;
-            }
+            return false;
         }
     }
     return true;
@@ -578,15 +578,12 @@ export function copyDeep(data) {
     const isArray = Array.isArray(data);
     if (isDateObject(data)) {
         copy = new Date(data);
-    }
-    else if (data instanceof Set) {
+    } else if (data instanceof Set) {
         copy = new Set(data);
-    }
-    else if (isArray || isObject(data)) {
+    } else if (isArray || isObject(data)) {
         copy = isArray ? [] : {};
         for (const key in data) copy[key] = copyDeep(data[key]);
-    }
-    else {
+    } else {
         return data;
     }
     return copy;
