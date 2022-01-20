@@ -547,11 +547,8 @@ export const isEqual = (object1, object2) => {
     }
     for (const key of keys1) {
         const val1 = object1[key];
-        if (!keys2.includes(key)) {
-            return false;
-        }
+        if (!keys2.includes(key)) return false;
         const val2 = object2[key];
-
         if (
             (isDateObject(val1) && isDateObject(val2)) ||
             (isObj(val1) && isObj(val2)) ||
@@ -589,7 +586,7 @@ export function copyDeep(data) {
     return copy;
 }
 
-// react-hook-form util
+// inspired by react-hook-form util
 export const deepMerge = (target, source) => {
     if (isPrimitive(target) || isPrimitive(source)) {
         return source;
