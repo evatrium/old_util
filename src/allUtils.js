@@ -1,4 +1,7 @@
-import {cloneDeep} from './lodash';
+import cloneDeep from "lodash/cloneDeep";
+import deepEqual from 'react-fast-compare';
+
+export {cloneDeep, deepEqual}
 /*################################
 ##################################
 
@@ -10,8 +13,12 @@ import {cloneDeep} from './lodash';
 
 export const isArray = Array.isArray;
 export const isString = thing => typeof thing === 'string';
+export const isObjectType = (value) => typeof value === 'object';
+export const isNullOrUndefined = (value) => value == null;
+export const isPrimitive = (value) => isNullOrUndefined(value) || !isObjectType(value);
 export const isPlainObject = thing => thing !== null && typeof thing === 'object' && thing.constructor === Object;
 export const isObj = isPlainObject;
+export const isObject = isPlainObject;
 export const isFunc = thing => typeof thing === 'function';
 export const isNum = thing => !isNaN(parseFloat(thing)) && !isNaN(thing - 0);
 export const isBool = thing => typeof thing === 'boolean';
@@ -20,6 +27,7 @@ export const isInteger = thing => String(Math.floor(Number(thing))) === thing;
 export const isMap = thing => thing instanceof Map;
 export const isSet = thing => thing instanceof Set;
 export const isPromise = thing => isObj(thing) && isFunc(thing.then);
+export const isDateObject = (data) => data instanceof Date;
 
 
 /*################################
@@ -523,14 +531,71 @@ export const shallowCopy = objOrArr => assign(emptyTarget(objOrArr), objOrArr)
 //     return copy;
 // };
 
+// react hooked form utils
+//https://github.com/react-hook-form/react-hook-form/blob/master/src/utils/deepEqual.ts
+export const isEqual = (object1, object2) => {
+    if (isPrimitive(object1) || isPrimitive(object2)) {
+        return object1 === object2;
+    }
+    if (isDateObject(object1) && isDateObject(object2)) {
+        return object1.getTime() === object2.getTime();
+    }
+    const keys1 = Object.keys(object1);
+    const keys2 = Object.keys(object2);
+    if (keys1.length !== keys2.length) {
+        return false;
+    }
+    for (const key of keys1) {
+        const val1 = object1[key];
+        if (!keys2.includes(key)) {
+            return false;
+        }
+        if (key !== 'ref') {
+            const val2 = object2[key];
+            if ((isDateObject(val1) && isDateObject(val2)) ||
+            (isObj(val1) && isObj(val2)) ||
+            (isArray(val1) && isArray(val2))
+                ? !deepEqual(val1, val2)
+                : val1 !== val2) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
 export const deepCopy = (...args) => cloneDeep(...args);
 export const deepCopySerializable = o => JSON.parse(JSON.stringify(o));
-// *experimental - merge objects and arrays
-export const deepMerge = (o, p) => {
-    if (isObjOrArr(p)) for (let k in p) o[k] = isObjOrArr(p[k]) ? deepMerge(o[k] || (o[k] = emptyTarget(p[k])), p[k]) : p[k];
-    else o = p;
-    return o;
-};
+// // *experimental - merge objects and arrays
+// export const deepMerge = (o, p) => {
+//     if (isObjOrArr(p)) for (let k in p) o[k] = isObjOrArr(p[k]) ? deepMerge(o[k] || (o[k] = emptyTarget(p[k])), p[k]) : p[k];
+//     else o = p;
+//     return o;
+// };
+
+// react-hook-form util
+export const deepMerge = (target, source) => {
+    if (isPrimitive(target) || isPrimitive(source)) {
+        return source;
+    }
+
+    for (const key in source) {
+        const targetValue = target[key];
+        const sourceValue = source[key];
+
+        try {
+            target[key] =
+                (isObject(targetValue) && isObject(sourceValue)) ||
+                (isArray(targetValue) && isArray(sourceValue))
+                    ? deepMerge(targetValue, sourceValue)
+                    : sourceValue;
+        } catch {
+        }
+    }
+
+    return target;
+}
 
 // https://github.com/mui-org/material-ui/blob/next/packages/material-ui-utils/src/deepmerge.ts
 export const deepMergeObj = (target, source, options = {clone: true}) => {
