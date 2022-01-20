@@ -512,7 +512,7 @@ export const API = (
 ##################################
 ################################*/
 
-export const getStateUpdate = (updater, prev) => (typeof updater === 'function' ? updater(prev) : updater);
+export const getStateUpdate = (updater, prev) => (isFunc(updater) ? updater(prev) : updater);
 
 
 export const assign = (obj, props) => {
@@ -555,7 +555,7 @@ export const isEqual = (object1, object2) => {
             if ((isDateObject(val1) && isDateObject(val2)) ||
             (isObj(val1) && isObj(val2)) ||
             (isArray(val1) && isArray(val2))
-                ? !deepEqual(val1, val2)
+                ? !isEqual(val1, val2)
                 : val1 !== val2) {
                 return false;
             }
@@ -573,6 +573,24 @@ export const deepCopySerializable = o => JSON.parse(JSON.stringify(o));
 //     else o = p;
 //     return o;
 // };
+export function copyDeep(data) {
+    let copy;
+    const isArray = Array.isArray(data);
+    if (isDateObject(data)) {
+        copy = new Date(data);
+    }
+    else if (data instanceof Set) {
+        copy = new Set(data);
+    }
+    else if (isArray || isObject(data)) {
+        copy = isArray ? [] : {};
+        for (const key in data) copy[key] = copyDeep(data[key]);
+    }
+    else {
+        return data;
+    }
+    return copy;
+}
 
 // react-hook-form util
 export const deepMerge = (target, source) => {
@@ -584,11 +602,16 @@ export const deepMerge = (target, source) => {
         const targetValue = target[key];
         const sourceValue = source[key];
 
-        target[key] =
-            (isObject(targetValue) && isObject(sourceValue)) ||
-            (isArray(targetValue) && isArray(sourceValue))
-                ? deepMerge(targetValue, sourceValue)
-                : sourceValue;
+        const bothAreObjectsOrBothAreArrays =
+            (isObject(targetValue) && isObject(sourceValue))
+            || (isArray(targetValue) && isArray(sourceValue));
+
+        if (bothAreObjectsOrBothAreArrays) {
+            target[key] = deepMerge(targetValue, sourceValue);
+        } else {
+            target[key] = sourceValue
+        }
+
     }
 
     return target;
