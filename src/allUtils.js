@@ -1,7 +1,4 @@
-import cloneDeep from "lodash/cloneDeep";
-import deepEqual from 'react-fast-compare';
-
-export {cloneDeep, deepEqual}
+//
 /*################################
 ##################################
 
@@ -55,7 +52,6 @@ export const isEmpty = (x) => {
     return false;
 }
 
-
 export const arrayIncludesItemFromArray = (arr1, arr2) => {
     let len1 = arr1.length, len2 = arr2.length;
     if (!len1 && !len2 || len1 && !len2 || !len1 && len2) return false;
@@ -104,50 +100,54 @@ export const fixedPropsChanged = (a = {}, b = {}) => {
 // https://github.com/dashed/shallowequal
 export function shallowEqual(objA, objB, compare, compareContext) {
     var ret = compare ? compare.call(compareContext, objA, objB) : void 0;
-
-    if (ret !== void 0) {
-        return !!ret;
-    }
-
-    if (Object.is(objA, objB)) {
-        return true;
-    }
-
-    if (typeof objA !== "object" || !objA || typeof objB !== "object" || !objB) {
-        return false;
-    }
-
+    if (ret !== void 0) return !!ret;
+    if (Object.is(objA, objB)) return true;
+    if (typeof objA !== "object" || !objA || typeof objB !== "object" || !objB) return false;
     var keysA = Object.keys(objA);
     var keysB = Object.keys(objB);
-
-    if (keysA.length !== keysB.length) {
-        return false;
-    }
-
+    if (keysA.length !== keysB.length) return false;
     var bHasOwnProperty = Object.prototype.hasOwnProperty.bind(objB);
-
     // Test for A's keys different from B.
     for (var idx = 0; idx < keysA.length; idx++) {
         var key = keysA[idx];
-
-
-        if (!bHasOwnProperty(key)) {
-            return false;
-        }
-
+        if (!bHasOwnProperty(key)) return false;
         var valueA = objA[key];
         var valueB = objB[key];
-
         ret = compare ? compare.call(compareContext, valueA, valueB, key) : void 0;
-
-        if (ret === false || (ret === void 0 && !Object.is(valueA, valueB))) {
-            return false;
-        }
+        if (ret === false || (ret === void 0 && !Object.is(valueA, valueB))) return false;
     }
-
     return true;
 }
 
+// inspired by react hooked form utils
+//https://github.com/react-hook-form/react-hook-form/blob/master/src/utils/deepEqual.ts
+export const isEqual = (object1, object2) => {
+    if (isPrimitive(object1) || isPrimitive(object2)) {
+        return object1 === object2;
+    }
+    if (isDateObject(object1) && isDateObject(object2)) {
+        return object1.getTime() === object2.getTime();
+    }
+    const keys1 = Object.keys(object1);
+    const keys2 = Object.keys(object2);
+    if (keys1.length !== keys2.length) {
+        return false;
+    }
+    for (const key of keys1) {
+        const val1 = object1[key];
+        if (!keys2.includes(key)) return false;
+        const val2 = object2[key];
+        if (
+            (isDateObject(val1) && isDateObject(val2)) ||
+            (isObj(val1) && isObj(val2)) ||
+            (isArray(val1) && isArray(val2))
+                ? !isEqual(val1, val2)
+                : val1 !== val2) {
+            return false;
+        }
+    }
+    return true;
+}
 
 /*################################
 ##################################
@@ -512,8 +512,6 @@ export const API = (
 ##################################
 ################################*/
 
-export const getStateUpdate = (updater, prev) => (isFunc(updater) ? updater(prev) : updater);
-
 
 export const assign = (obj, props) => {
     for (let i in props) obj[i] = props[i];
@@ -531,46 +529,8 @@ export const shallowCopy = objOrArr => assign(emptyTarget(objOrArr), objOrArr)
 //     return copy;
 // };
 
-// inspired by react hooked form utils
-//https://github.com/react-hook-form/react-hook-form/blob/master/src/utils/deepEqual.ts
-export const isEqual = (object1, object2) => {
-    if (isPrimitive(object1) || isPrimitive(object2)) {
-        return object1 === object2;
-    }
-    if (isDateObject(object1) && isDateObject(object2)) {
-        return object1.getTime() === object2.getTime();
-    }
-    const keys1 = Object.keys(object1);
-    const keys2 = Object.keys(object2);
-    if (keys1.length !== keys2.length) {
-        return false;
-    }
-    for (const key of keys1) {
-        const val1 = object1[key];
-        if (!keys2.includes(key)) return false;
-        const val2 = object2[key];
-        if (
-            (isDateObject(val1) && isDateObject(val2)) ||
-            (isObj(val1) && isObj(val2)) ||
-            (isArray(val1) && isArray(val2))
-                ? !isEqual(val1, val2)
-                : val1 !== val2) {
-            return false;
-        }
-    }
-    return true;
-}
-
-
-export const deepCopy = (...args) => cloneDeep(...args);
-export const deepCopySerializable = o => JSON.parse(JSON.stringify(o));
-// // *experimental - merge objects and arrays
-// export const deepMerge = (o, p) => {
-//     if (isObjOrArr(p)) for (let k in p) o[k] = isObjOrArr(p[k]) ? deepMerge(o[k] || (o[k] = emptyTarget(p[k])), p[k]) : p[k];
-//     else o = p;
-//     return o;
-// };
-export function copyDeep(data) {
+// inspired by react-hook-form util
+export function deepCopy(data) {
     let copy;
     const isArray = Array.isArray(data);
     if (isDateObject(data)) {
@@ -579,76 +539,28 @@ export function copyDeep(data) {
         copy = new Set(data);
     } else if (isArray || isObject(data)) {
         copy = isArray ? [] : {};
-        for (const key in data) copy[key] = copyDeep(data[key]);
+        for (const key in data) copy[key] = deepCopy(data[key]);
     } else {
         return data;
     }
     return copy;
 }
 
+export const deepCopySerializable = o => JSON.parse(JSON.stringify(o));
+
 // inspired by react-hook-form util
-export const deepMerge = (target, source, clone = {clone: false}) => {
-    if (isPrimitive(target) || isPrimitive(source)) {
-        return source;
-    }
-
+export const deepMerge = (target, source) => {
+    if (isPrimitive(target) || isPrimitive(source)) return source;
     for (const key in source) {
         const targetValue = target[key];
         const sourceValue = source[key];
-
-        const bothAreObjectsOrBothAreArrays =
-            (isObject(targetValue) && isObject(sourceValue))
+        const bothAreObjectsOrBothAreArrays = (isObj(targetValue) && isObj(sourceValue))
             || (isArray(targetValue) && isArray(sourceValue));
-
-        if (bothAreObjectsOrBothAreArrays) {
-
-            target[key] = deepMerge(targetValue, sourceValue);
-        } else {
-            target[key] = sourceValue
-        }
-
+        if (bothAreObjectsOrBothAreArrays) target[key] = deepMerge(targetValue, sourceValue);
+        else target[key] = sourceValue
     }
-
     return target;
 }
-
-export const hydrateFunctions = (target, source) => {
-    if (isPrimitive(target) || isPrimitive(source)) {
-        return source;
-    }
-
-    for (const key in source) {
-        const targetValue = target[key];
-        const sourceValue = source[key];
-
-        const bothAreObjectsOrBothAreArrays =
-            (isObject(targetValue) && isObject(sourceValue))
-            || (isArray(targetValue) && isArray(sourceValue));
-
-        if (bothAreObjectsOrBothAreArrays) {
-            target[key] = deepMerge(targetValue, sourceValue);
-        } else if(isFunc(sourceValue)){
-            target[key] = sourceValue
-        }
-
-    }
-
-    return target;
-}
-
-// https://github.com/mui-org/material-ui/blob/next/packages/material-ui-utils/src/deepmerge.ts
-export const deepMergeObj = (target, source, options = {clone: true}) => {
-    var output = options.clone ? {...target} : target;
-    if (isObj(target) && isObj(source)) {
-        Object.keys(source).forEach(key => {
-            if (key === '__proto__') return;  // Avoid prototype pollution
-            if (isObj(source[key]) && key in target && isObj(target[key])) {
-                output[key] = deepMergeObj(target[key], source[key], options);
-            } else output[key] = source[key];
-        });
-    }
-    return output;
-};
 
 // https://youmightnotneed.com/lodash/
 // toPath('a[0].b.c') // => ['a', '0', 'b', 'c']
@@ -688,21 +600,6 @@ export function setIn(obj, path, value) {
     return res;
 }
 
-/*
-// WARNING: This is not a drop in replacement solution and
-// it might not work for some edge cases. Test your code!
-const set = (obj, path, value) => {
-  // Regex explained: https://regexr.com/58j0k
-  const pathArray = Array.isArray(path) ? path : path.match(/([^[.\]])+/g)
-
-  pathArray.reduce((acc, key, i) => {
-    if (acc[key] === undefined) acc[key] = {}
-    if (i === pathArray.length - 1) acc[key] = value
-    return acc[key]
-  }, obj)
-}
- */
-
 
 export const selectAndOthers = ({props, select, fallbacks} = {}) => {
     let selected = {};
@@ -737,6 +634,8 @@ export const formatObjArrForSimpleTable = (objArr, excludeKeys = [], formatter =
         rows: objArr
     };
 };
+
+export const getStateUpdate = (updater, prev) => (isFunc(updater) ? updater(prev) : updater);
 
 /*################################
 ##################################
@@ -857,7 +756,6 @@ export const array1IncludesAllItemsFromArray2 = (arr1, arr2) => {
     return true;
 };
 
-
 export function closestItem(arr, item) {
     const index = arr.indexOf(item);
     if (index === -1) {
@@ -946,20 +844,20 @@ export const formatSeconds = seconds =>
 ################################*/
 
 //
-export function debounced(func, wait, immediate) {
-    var timeout;
-    return function () {
-        var context = this, args = arguments;
-        var later = function () {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-    };
-}
+// export function debounced(func, wait, immediate) {
+//     var timeout;
+//     return function () {
+//         var context = this, args = arguments;
+//         var later = function () {
+//             timeout = null;
+//             if (!immediate) func.apply(context, args);
+//         };
+//         var callNow = immediate && !timeout;
+//         clearTimeout(timeout);
+//         timeout = setTimeout(later, wait);
+//         if (callNow) func.apply(context, args);
+//     };
+// }
 
 // https://github.com/mui-org/material-ui/blob/master/packages/mui-utils/src/debounce.js
 export function debounce(func, wait = 166) {
@@ -1020,7 +918,8 @@ export const Q = (count = 0, queue = {}) => ({
 
 export const Subie = (subs = [], _unsub = it => subs.splice(subs.indexOf(it) >>> 0, 1)) => [
     it => ((subs.push(it), () => _unsub(it))),
-    (...data) => subs.slice().map(f => (f(...data)))
+    (...data) => subs.slice().map(f => (f(...data))),
+    _unsub
 ];
 
 
