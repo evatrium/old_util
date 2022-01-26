@@ -777,10 +777,17 @@ export function closestItem(arr, item) {
 
 export const tryCatch = async prom => {
     try {
-        return {data: await isFunc(prom) ? prom() : prom, error: undefined}
+        return {data: await prom, error: undefined}
     } catch (error) {
         return {error, data: undefined}
     }
+}
+
+
+export const wrapTryCatch = fn => {
+    const wrapped = (...args) => tryCatch(fn(...args));
+    wrapped.TC = 'tryCatch';
+    return wrapped
 }
 
 export const cancelablePromise = (promise) => {
