@@ -230,7 +230,7 @@ export const isChrome = () => inBrowser(() => {
     let isChromium = window.chrome,
         winNav = window.navigator,
         vendorName = winNav.vendor,
-        isOpera = typeof window.opr !== 'undefined',
+        isOpera = typeof window.opdr !== 'undefined',
         isIEedge = winNav.userAgent.indexOf('Edge') > -1,
         isIOSChrome = winNav.userAgent.match('CriOS');
 
@@ -775,11 +775,19 @@ export function closestItem(arr, item) {
 ##################################
 ################################*/
 
-export const tryCatch = async prom => {
+export const tryCatchProm = async prom => {
     try {
-        return {data: await prom, error: null}
+        return {data: await prom, error: undefined}
     } catch (error) {
-        return {error, data: null}
+        return {error, data: undefined}
+    }
+}
+
+export const tryCatch = async fn => {
+    try {
+        return {data: await fn(), error: undefined}
+    } catch (error) {
+        return {error, data: undefined}
     }
 }
 
