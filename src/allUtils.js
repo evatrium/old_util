@@ -475,10 +475,8 @@ export const API = (
             if (response.ok) {
                 api.onResponseOk.forEach(callback);
                 api.onFinally.forEach(callback);
-                return Promise.resolve(
-                    responseTypeIsJSON(response)
-                        ? await response.json() : response
-                );
+                const finalResponse = responseTypeIsJSON(response) ? await response.json() : response
+                return Promise.resolve(finalResponse);
             }
             err = new Error(await response.text() || response.statusText);
             err.response = response;
