@@ -479,6 +479,7 @@ export const API = (
                 ...(body && {body}),
                 ...api.getFetchOptions(request)
             });
+            console.log('api response', response);
             if (response.ok) {
                 if (responseTypeIsJSON(response)) {
                     responseJson = await response.json();

@@ -4,9 +4,9 @@
 	"description": "collection of js utils",
 	"type": "module",
 	"source": "src/index.js",
-	"main": "./lib/iosio-util.js",
+	"main": "./lib/iosio-util.cjs",
 	"umd:main": "./lib/iosio-util.umd.js",
-	"module": "./lib/iosio-util.module.js",
+	"module": "./lib/iosio-util.module.esm.js",
 	"unpkg": "./lib/iosio-util.umd.js",
 	"exports": {
 		"browser": "./lib/iosio-util.module.js",
