@@ -494,7 +494,7 @@ export const API = (
             error.response = response;
             onFailCallbacks();
         } catch (err) {
-            response = {ok: false, status: 1000, statusText: err?.message};
+            response = {ok: false, status: 1000, statusText: err ? err.message : ''};
             err.response = response;
             error = err;
             onFailCallbacks();
