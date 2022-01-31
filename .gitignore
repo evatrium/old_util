@@ -8,6 +8,7 @@ node_modules
 # production
 /build
 /lib
+/dist
 
 # misc
 .DS_Store

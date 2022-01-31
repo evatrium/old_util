@@ -4,16 +4,9 @@
 	"description": "collection of js utils",
 	"type": "module",
 	"source": "src/index.js",
-	"main": "./lib/iosio-util.cjs",
-	"umd:main": "./lib/iosio-util.umd.js",
-	"module": "./lib/iosio-util.module.esm.js",
-	"unpkg": "./lib/iosio-util.umd.js",
-	"exports": {
-		"browser": "./lib/iosio-util.module.js",
-		"import": "./lib/iosio-util.mjs",
-		"require": "./lib/iosio-util.cjs",
-		"default": "./lib/iosio-util.modern.js"
-	},
+	"module": "./dist/utils.module.js",
+	"main": "./dist/utils.umd.js",
+	"exports": "./dist/utils.modern.js",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/iosio/util.git"
@@ -24,7 +17,7 @@
 	},
 	"files": [
 		"src",
-		"lib"
+		"dist"
 	],
 	"keywords": [
 		"utils",
@@ -34,7 +27,7 @@
 	],
 	"scripts": {
 		"start": "wmr",
-		"build": "microbundle --name iosioUtil",
+		"build": "microbundle src/index.js --sourcemap false --no-compress --name iosioUtils",
 		"test": "exit 0"
 	},
 	"devDependencies": {
