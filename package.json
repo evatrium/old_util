@@ -1,6 +1,6 @@
 {
 	"name": "@iosio/util",
-	"version": "2.0.44",
+	"version": "2.0.45",
 	"description": "collection of js utils",
 	"type": "module",
 	"source": "src/index.js",
