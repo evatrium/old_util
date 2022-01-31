@@ -479,7 +479,6 @@ export const API = (
                 ...(body && {body}),
                 ...api.getFetchOptions(request)
             });
-            console.log('api response', response);
             if (response.ok) {
                 if (responseTypeIsJSON(response)) {
                     responseJson = await response.json();
@@ -500,7 +499,7 @@ export const API = (
             error = err;
             onFailCallbacks();
         }
-        return Promise.reject(err);
+        return Promise.reject(error);
     };
     Object.assign(api, {
         getFetchOptions,
