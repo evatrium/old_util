@@ -462,6 +462,7 @@ export const API = (
         let response;
         const callback = f => f(request, response);
         const {method, url, body} = request;
+        let err;
         try {
             response = await fetch(API_URL + url, {
                 method,
@@ -477,18 +478,20 @@ export const API = (
                 }
                 return Promise.resolve(response);
             }
-            const err = new Error(await response.text() || response.statusText);
+            err = new Error(await response.text() || response.statusText);
             err.response = response;
             api.onFailStatus.forEach(callback);
             api.onFinally.forEach(callback);
-            return Promise.reject(err);
+
         } catch (error) {
             response = {ok: false, status: 1000, statusText: error.message};
             api.onFailStatus.forEach(callback);
             api.onFinally.forEach(callback);
             error.response = response;
-            return Promise.reject(error);
+            err = error;
         }
+
+        return Promise.reject(err);
     };
 
     Object.assign(api, {
