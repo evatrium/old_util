@@ -777,7 +777,8 @@ export function closestItem(arr, item) {
 
 export const tryCatch = async prom => {
     try {
-        return {data: await prom, error: undefined}
+        const data = await prom;
+        return {data, error: undefined}
     } catch (error) {
         return {error, data: undefined}
     }
