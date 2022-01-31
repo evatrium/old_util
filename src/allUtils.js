@@ -489,7 +489,8 @@ export const API = (
                     return Promise.resolve(response);
                 }
             }
-            error = new Error(await response.text() || response.statusText);
+            const responseText = await response.text()
+            error = new Error(responseText || response.statusText);
             error.response = response;
             onFailCallbacks();
         } catch (err) {
