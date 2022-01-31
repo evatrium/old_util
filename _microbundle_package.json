@@ -4,7 +4,9 @@
 	"description": "collection of js utils",
 	"type": "module",
 	"source": "src/index.js",
-	"main": "src/index.js",
+	"module": "./dist/utils.module.js",
+	"main": "./dist/utils.umd.js",
+	"exports": "./dist/utils.modern.js",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/iosio/util.git"
@@ -14,7 +16,8 @@
 		"access": "public"
 	},
 	"files": [
-		"src"
+		"src",
+		"dist"
 	],
 	"keywords": [
 		"utils",
@@ -24,10 +27,11 @@
 	],
 	"scripts": {
 		"start": "wmr",
-		"build": "exit 0",
+		"build": "microbundle src/index.js --sourcemap false --no-compress --name iosioUtils",
 		"test": "exit 0"
 	},
 	"devDependencies": {
+		"microbundle": "^0.14.1",
 		"preact": "^10.6.4",
 		"wmr": "^3.7.2"
 	}
