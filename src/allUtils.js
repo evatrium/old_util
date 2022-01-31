@@ -206,6 +206,8 @@ export const memoizeArgs = fn => {
     };
 };
 
+export const pluck = (arr, obj = {}) => arr.reduce((acc, curr) => ((acc[curr] = obj[curr]), acc), {});
+
 /*################################
 ##################################
 
@@ -447,6 +449,7 @@ export const joinEndpointInterpolations = (strings, interpolations) =>
 
 export const responseTypeIsJSON = response => /^application\/json/.test(response.headers.get('content-type'));
 
+
 export const API = (
     {
         API_URL = '',
@@ -472,11 +475,10 @@ export const API = (
             if (response.ok) {
                 api.onResponseOk.forEach(callback);
                 api.onFinally.forEach(callback);
-
-                if (responseTypeIsJSON(response)) {
-                    response = await response.json()
-                }
-                return Promise.resolve(response);
+                return Promise.resolve(
+                    responseTypeIsJSON(response)
+                        ? await response.json() : response
+                );
             }
             err = new Error(await response.text() || response.statusText);
             err.response = response;
@@ -490,10 +492,8 @@ export const API = (
             error.response = response;
             err = error;
         }
-
         return Promise.reject(err);
     };
-
     Object.assign(api, {
         getFetchOptions,
         onResponseOk, onFailStatus, onFinally,
@@ -505,7 +505,6 @@ export const API = (
     });
     return api;
 };
-
 
 /*################################
 ##################################
