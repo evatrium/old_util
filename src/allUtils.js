@@ -462,10 +462,17 @@ export const API = (
         let request = Array.isArray(objOrTemplateStringsArray)
             ? joinEndpointInterpolations(objOrTemplateStringsArray, interpolations)
             : objOrTemplateStringsArray;
-        let response;
-        const callback = f => f(request, response);
+        let response, responseJson, error;
+        const callback = f => f({request, response, responseJson, error});
+        const onSuccessCallbacks = () => {
+            api.onResponseOk.forEach(callback);
+            api.onFinally.forEach(callback);
+        };
+        const onFailCallbacks = () => {
+            api.onFailStatus.forEach(callback);
+            api.onFinally.forEach(callback);
+        };
         const {method, url, body} = request;
-        let err;
         try {
             response = await fetch(API_URL + url, {
                 method,
@@ -473,23 +480,23 @@ export const API = (
                 ...api.getFetchOptions(request)
             });
             if (response.ok) {
-                api.onResponseOk.forEach(callback);
-                api.onFinally.forEach(callback);
-                let finalResponse = response;
-                if (responseTypeIsJSON(response)) finalResponse = await response.json();
-                return Promise.resolve(finalResponse);
+                if (responseTypeIsJSON(response)) {
+                    responseJson = await response.json();
+                    onSuccessCallbacks();
+                    return Promise.resolve(responseJson);
+                } else {
+                    onSuccessCallbacks();
+                    return Promise.resolve(response);
+                }
             }
-            err = new Error(await response.text() || response.statusText);
-            err.response = response;
-            api.onFailStatus.forEach(callback);
-            api.onFinally.forEach(callback);
-
-        } catch (error) {
-            response = {ok: false, status: 1000, statusText: error.message};
-            api.onFailStatus.forEach(callback);
-            api.onFinally.forEach(callback);
+            error = new Error(await response.text() || response.statusText);
             error.response = response;
-            err = error;
+            onFailCallbacks();
+        } catch (err) {
+            response = {ok: false, status: 1000, statusText: error.message};
+            err.response = response;
+            error = err;
+            onFailCallbacks();
         }
         return Promise.reject(err);
     };
