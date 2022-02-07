@@ -456,7 +456,8 @@ export const API = (
         getFetchOptions = () => ({}),
         onResponseOk = new Set(),
         onFailStatus = new Set(),
-        onFinally = new Set()
+        onFinally = new Set(),
+        shouldParseJson = responseTypeIsJSON
     }, _token) => {
     const api = async (objOrTemplateStringsArray, ...interpolations) => {
         let request = Array.isArray(objOrTemplateStringsArray)
@@ -480,7 +481,7 @@ export const API = (
                 ...api.getFetchOptions(request)
             });
             if (response.ok) {
-                if (responseTypeIsJSON(response)) {
+                if (shouldParseJson(response)) {
                     responseJson = await response.json();
                     onSuccessCallbacks();
                     return Promise.resolve(responseJson);
