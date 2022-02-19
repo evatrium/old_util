@@ -1,2 +1,2 @@
-export * from './allUtils';
-export * from './colorManipulators';
+export * from './allUtils.js';
+export * from './colorManipulators.js';
