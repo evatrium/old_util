@@ -1,5 +1,5 @@
 import {
-    snakeToSentenceCase, deepMergeObj, deepMerge, deepCopy, shallowCopy, setIn, getIn,
+    snakeToSentenceCase, deepMerge, deepCopy, shallowCopy, setIn, getIn,
     // toPath
 } from '../src';
 import {h, render} from 'preact';
@@ -19,27 +19,33 @@ console.log(Object.is(arr1, arr2));
 // import lodashToPath from 'lodash/toPath'
 //
 //
-// const objA = {
-//     obj_a: {
-//         obj_a_array: [1, 2, 3]
-//     },
-//     obj_c: {
-//         c: 2,
-//         obj_c_obj: {
-//             foo: 'bar'
-//         }
-//     }
-// };
-// const objB = {
-//     obj_b: 'b',
-//     obj_a: {
-//         obj_a_array: ['a', 2, 'c', 'd', objA]
-//     },
-//     // obj_c: {
-//     //     c: 1,
-//     //     d: true
-//     // }
-// };
+const objA = {
+    obj_a: {
+        obj_a_array: [1, 2, {foo: 'bar'}]
+    },
+    obj_c: {
+        c: 2,
+        obj_c_obj: {
+            foo: 'bar'
+        }
+    }
+};
+const objB = {
+    obj_a: {
+        obj_a_array: ['a', 2, {baz: 'bing'}, 'd']
+    },
+    obj_b: 'b',
+
+    // obj_c: {
+    //     c: 1,
+    //     d: true
+    // }
+};
+
+const result = deepMerge(objA, objB, {array: 'overwrite'});
+
+console.log(result);
+
 // const path = 'obj_a.obj_a_array[4].obj_c.c'
 // console.log('lodash toPath', lodashToPath(path));
 // // console.log('simple toPath', toPath(path));

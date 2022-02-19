@@ -529,9 +529,12 @@ export const assign = (obj, props) => {
 };
 export const extend = assign;
 
-const emptyTarget = val => isArray(val) ? [] : isObj(val) ? {} : val;
+export const emptyTarget = val => isArray(val) ? [] : {};
 
-export const shallowCopy = objOrArr => assign(emptyTarget(objOrArr), objOrArr)
+export const shallowCopy = objOrArr => {
+    if (isPrimitive(objOrArr)) return objOrArr;
+    return assign(emptyTarget(objOrArr), objOrArr);
+}
 
 // export const deepCopy = o => {
 //     let copy = emptyTarget(o);
@@ -548,7 +551,7 @@ export function deepCopy(data) {
     } else if (data instanceof Set) {
         copy = new Set(data);
     } else if (isArray || isObject(data)) {
-        copy = isArray ? [] : {};
+        copy = emptyTarget(data);
         for (const key in data) copy[key] = deepCopy(data[key]);
     } else {
         return data;
@@ -558,19 +561,54 @@ export function deepCopy(data) {
 
 export const deepCopySerializable = o => JSON.parse(JSON.stringify(o));
 
-// inspired by react-hook-form util
-export const deepMerge = (target, source) => {
-    if (isPrimitive(target) || isPrimitive(source)) return source;
-    for (const key in source) {
-        const targetValue = target[key];
-        const sourceValue = source[key];
-        const bothAreObjectsOrBothAreArrays = (isObj(targetValue) && isObj(sourceValue))
-            || (isArray(targetValue) && isArray(sourceValue));
-        if (bothAreObjectsOrBothAreArrays) target[key] = deepMerge(targetValue, sourceValue);
-        else target[key] = sourceValue
+
+const getMergeInfo = (target, source) => {
+    const targetIsArray = isArray(target);
+    const sourceIsArray = isArray(source);
+    const targetIsObject = isObj(target);
+    const sourceIsObject = isObj(source);
+    const bothAreArrays = targetIsArray && sourceIsArray;
+    const bothAreObjects = targetIsObject && sourceIsObject;
+    const bothAreSameType = bothAreArrays || bothAreObjects;
+    return {
+        canMergeTarget: targetIsArray || targetIsObject,
+        canMergeSource: sourceIsArray || sourceIsObject,
+        bothAreSameType, targetIsArray, sourceIsArray,
+        targetIsObject, sourceIsObject, bothAreArrays, bothAreObjects
     }
-    return target;
 }
+
+const nestedMerge = (out, source, options) => {
+    for (let key in source) out[key] = deepMerge(out[key], source[key], options);
+    return out;
+}
+export const deepMerge = (target, source, options) => {
+
+    const {clone = false, array} = options || {};
+
+    let out = target;
+
+    const {
+        canMergeTarget, canMergeSource,
+        bothAreSameType, bothAreArrays, sourceIsArray,
+    } = getMergeInfo(target, source);
+
+    if (!canMergeTarget || !canMergeSource || !bothAreSameType) return source;
+
+    if (clone) out = isFunc(clone) ? clone(target) : shallowCopy(target);
+
+    if (array === 'concat') {
+        if (bothAreArrays) out = out.concat(source);
+        else if (sourceIsArray) out = source;
+        else out = nestedMerge(out, source, options);
+    } else if (array === 'overwrite') {
+        if (sourceIsArray) out = source;
+        else out = nestedMerge(out, source, options);
+    } else out = nestedMerge(out, source, options);
+
+    return out;
+};
+
 
 // https://youmightnotneed.com/lodash/
 // toPath('a[0].b.c') // => ['a', '0', 'b', 'c']
